@@ -116,7 +116,11 @@ const Register = () => {
           onChange={handleChange}
         />
       </div>
-      {error? <><p>{error}</p></>: null}
+      <div className="text-center mb-3">
+      {error? <><p className="m-auto p-auto text-danger">{error}</p></>: null}
+
+      </div>
+      
       <div className="text-center mb-3">
         <button className="btn btn-secondary btn-sm" disabled={loading}>
           Register
