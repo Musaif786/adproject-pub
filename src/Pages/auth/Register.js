@@ -46,7 +46,6 @@ const Register = () => {
         uid: result.user.uid,
         name,
         email,
-        password,
         createdAt: Timestamp.fromDate(new Date()),
         isOnline: true,
       });
@@ -116,11 +115,7 @@ const Register = () => {
           onChange={handleChange}
         />
       </div>
-      <div className="text-center mb-3">
-      {error? <><p className="m-auto p-auto text-danger">{error}</p></>: null}
-
-      </div>
-      
+      {error ? <p className="text-center text-danger">{error}</p> : null}
       <div className="text-center mb-3">
         <button className="btn btn-secondary btn-sm" disabled={loading}>
           Register

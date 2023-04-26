@@ -1,8 +1,4 @@
-body{
-  background-color: rgb(218, 247, 237);
-}
-.form{
+.form {
   max-width: 576px;
   margin: auto;
-  background-color: rgb(238, 252, 255);
 }
