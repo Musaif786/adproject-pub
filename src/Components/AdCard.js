@@ -1,18 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AiOutlineHeart } from "react-icons/ai";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import Moment from "react-moment";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 
 const AdCard = ({ ad }) => {
-  const adLink = "/${ad.category.toLowerCase()}/${ad.id}";
-  console.log(ad.images[0]);
+  const [users, setUsers] = useState([]);
+
+  const adLink = `/${ad.category.toLowerCase()}/${ad.id}`;
+
+  useEffect(() => {
+    const docRef = doc(db, "favorites", ad.id);
+    const unsub = onSnapshot(docRef, (querySnapshot) =>
+      setUsers(querySnapshot.data().users)
+    );
+    return () => unsub();
+  }, []);
+
+  const toggleFavorite = async () => {
+    let isFav = users.includes(auth.currentUser.uid);
+
+    await updateDoc(doc(db, "favorites", ad.id), {
+      users: isFav
+        ? users.filter((id) => id !== auth.currentUser.uid)
+        : users.concat(auth.currentUser.uid),
+    });
+  };
+
+  console.log(users);
+
   return (
     <div className="card">
       <Link to={adLink}>
         <img
           src={
-            ad.images[0].url ||
-            "https://firebasestorage.googleapis.com/v0/b/ads-network-596c6.appspot.com/o/ads%2F1682547225184%20-%20Folder.jpg?alt=media&token=aae4cce0-98db-4ae6-a9f6-0ce56bda38ed"
+            ad.images[0]
+              ? ad.images[0].url
+              : "https://firebasestorage.googleapis.com/v0/b/ads-network-596c6.appspot.com/o/ads%2F1682553539084%20-%20Folder.jpg?alt=media&token=d8265084-46be-4afb-80b7-cb0725049a41"
           }
           alt={ad.title}
           className="card-img-top"
@@ -22,7 +47,19 @@ const AdCard = ({ ad }) => {
       <div className="card-body">
         <p className="d-flex justify-content-between align-items-center">
           <small>{ad.category}</small>
-          <AiOutlineHeart size={30} />
+          {users?.includes(auth.currentUser?.uid) ? (
+            <AiFillHeart
+              size={30}
+              onClick={toggleFavorite}
+              className="text-danger"
+            />
+          ) : (
+            <AiOutlineHeart
+              size={30}
+              onClick={toggleFavorite}
+              className="text-danger"
+            />
+          )}
         </p>
         <Link to={adLink}>
           <h5 className="card-title">{ad.title}</h5>
@@ -31,7 +68,7 @@ const AdCard = ({ ad }) => {
           <p className="card-text">
             {ad.location} - <Moment fromNow>{ad.publishedAt.toDate()}</Moment>
             <br />
-            Rupees. {Number(ad.price).toLocaleString()}
+            PKR. {Number(ad.price).toLocaleString()}
           </p>
         </Link>
       </div>
