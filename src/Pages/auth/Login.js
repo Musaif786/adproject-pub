@@ -43,7 +43,7 @@ const Login = () => {
         loading: false,
       });
 
-      navigate("/");
+      navigate("/", {replace: true});
     } catch (error) {
       setValues({ ...values, error: error.message, loading: false });
     }

@@ -41,6 +41,16 @@ const Navbar = () => {
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             {user ? (
               <>
+              <li className="nav-item">
+                  <Link className="nav-link" to={`/profile/${user.uid}`}>
+                    Profile
+                  </Link>
+                </li>
+                <li className="nav-item mx-2">
+                  <Link className="nav-link" to="/sell">
+                    Sell
+                  </Link>
+                </li>
                 <button
                   className="btn btn-danger btn-sm"
                   onClick={handleSignout}
