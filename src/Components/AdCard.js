@@ -1,44 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import Moment from "react-moment";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { auth } from "../firebaseConfig";
+import useSnapshot from "../utils/useSnapshot";
+import { toggleFavorite } from "../utils/fav";
 
 const AdCard = ({ ad }) => {
-  const [users, setUsers] = useState([]);
-
+  const { val } = useSnapshot("favorites", ad.id);
   const adLink = `/${ad.category.toLowerCase()}/${ad.id}`;
-
-  useEffect(() => {
-    const docRef = doc(db, "favorites", ad.id);
-    const unsub = onSnapshot(docRef, (querySnapshot) =>
-      setUsers(querySnapshot.data().users)
-    );
-    return () => unsub();
-  }, []);
-
-  const toggleFavorite = async () => {
-    let isFav = users.includes(auth.currentUser.uid);
-
-    await updateDoc(doc(db, "favorites", ad.id), {
-      users: isFav
-        ? users.filter((id) => id !== auth.currentUser.uid)
-        : users.concat(auth.currentUser.uid),
-    });
-  };
-
-  console.log(users);
 
   return (
     <div className="card">
       <Link to={adLink}>
         <img
-          src={
-            ad.images[0]
-              ? ad.images[0].url
-              : "https://firebasestorage.googleapis.com/v0/b/ads-network-596c6.appspot.com/o/ads%2F1682553539084%20-%20Folder.jpg?alt=media&token=d8265084-46be-4afb-80b7-cb0725049a41"
-          }
+          src={ad.images[0].url}
           alt={ad.title}
           className="card-img-top"
           style={{ width: "100%", height: "200px" }}
@@ -47,16 +23,16 @@ const AdCard = ({ ad }) => {
       <div className="card-body">
         <p className="d-flex justify-content-between align-items-center">
           <small>{ad.category}</small>
-          {users?.includes(auth.currentUser?.uid) ? (
+          {val?.users?.includes(auth.currentUser?.uid) ? (
             <AiFillHeart
               size={30}
-              onClick={toggleFavorite}
+              onClick={() => toggleFavorite(val.users, ad.id)}
               className="text-danger"
             />
           ) : (
             <AiOutlineHeart
               size={30}
-              onClick={toggleFavorite}
+              onClick={() => toggleFavorite(val.users, ad.id)}
               className="text-danger"
             />
           )}
@@ -68,7 +44,7 @@ const AdCard = ({ ad }) => {
           <p className="card-text">
             {ad.location} - <Moment fromNow>{ad.publishedAt.toDate()}</Moment>
             <br />
-            INR. {Number(ad.price).toLocaleString()}
+            PKR. {Number(ad.price).toLocaleString()}
           </p>
         </Link>
       </div>

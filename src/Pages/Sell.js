@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
-import { addDoc, collection, doc ,setDoc, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { storage, db, auth } from "../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 
 const categories = ["Vehicle", "Property", "Electronics"];
-const locations = ["Hyderabad", "Banglore", "Secrendabad"];
+const locations = ["Karachi", "Lahore", "Islamabad"];
 
 const Sell = () => {
   const navigate = useNavigate();
@@ -41,18 +41,14 @@ const Sell = () => {
     e.preventDefault();
 
     setValues({ ...values, error: "", loading: true });
-    if (!title || !category || !price ) {
-        setValues({ ...values, error: "Cannot post empty ads" });
-        return;
-      }
 
     try {
       let imgs = [];
       // loop through images
       if (images.length) {
-        for (let i of images) {
-          const imgRef = ref(storage, `ads/${Date.now()} - ${i.name}`);
-          const result = await uploadBytes(imgRef, i);
+        for (let image of images) {
+          const imgRef = ref(storage, `ads/${Date.now()} - ${image.name}`);
+          const result = await uploadBytes(imgRef, image);
           const fileUrl = await getDownloadURL(
             ref(storage, result.ref.fullPath)
           );
@@ -65,7 +61,7 @@ const Sell = () => {
         images: imgs,
         title,
         category,
-        price,
+        price: Number(price),
         location,
         contact,
         description,
@@ -74,10 +70,9 @@ const Sell = () => {
         postedBy: auth.currentUser.uid,
       });
 
-      await setDoc(doc(db, 'favorites', result.id),{
+      await setDoc(doc(db, 'favorites', result.id), {
         users: []
       })
-
 
       setValues({
         images: [],
@@ -129,7 +124,7 @@ const Sell = () => {
             <option value={category} key={category}>
               {category}
             </option>
-          ))} 
+          ))}
         </select>
       </div>
       <div className="mb-3">
@@ -182,5 +177,5 @@ const Sell = () => {
     </form>
   );
 };
- 
+
 export default Sell;

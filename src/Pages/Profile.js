@@ -4,7 +4,6 @@ import {
   collection,
   doc,
   getDocs,
-  onSnapshot,
   orderBy,
   query,
   updateDoc,
@@ -20,27 +19,17 @@ import { db, storage, auth } from "../firebaseConfig";
 import { FaUserAlt, FaCloudUploadAlt } from "react-icons/fa";
 import moment from "moment";
 import AdCard from "../components/AdCard";
+import useSnapshot from "../utils/useSnapshot";
 
 const monthAndYear = (date) =>
   `${moment(date).format("MMMM").slice(0, 3)} ${moment(date).format("YYYY")}`;
 
 const Profile = () => {
-  const { id } = useParams();
-  const [user, setUser] = useState();
+  const { id } = useParams();  
   const [img, setImg] = useState("");
   const [ads, setAds] = useState([]);
 
-  const getUser = async () => {
-    // const docSnap = await getDoc(doc(db, "users", id));
-    // if (docSnap.exists()) {
-    //   setUser(docSnap.data());
-    // }
-    const unsub = onSnapshot(doc(db, "users", id), (querySnapshot) =>
-      setUser(querySnapshot.data())
-    );
-
-    return () => unsub();
-  };
+  const { val: user } = useSnapshot("users", id);
 
   const uploadImage = async () => {
     // create image reference
@@ -79,13 +68,12 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    getUser();
     if (img) {
       uploadImage();
     }
     getAds();
   }, [img]);
-  console.log(ads);
+
   const deletePhoto = async () => {
     const confirm = window.confirm("Delete photo permanently?");
     if (confirm) {

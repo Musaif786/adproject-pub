@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { auth, db } from "../../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+
 
 const Login = () => {
   const [values, setValues] = useState({
@@ -13,6 +14,7 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { email, password, error, loading } = values;
 
@@ -42,8 +44,11 @@ const Login = () => {
         error: "",
         loading: false,
       });
-
-      navigate("/", {replace: true});
+      if(location.state?.from){
+        navigate(location.state.from.pathname)
+      }else{
+        navigate("/", {replace: true});
+      }
     } catch (error) {
       setValues({ ...values, error: error.message, loading: false });
     }
